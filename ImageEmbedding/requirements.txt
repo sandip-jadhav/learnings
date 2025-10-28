@@ -1,16 +1,26 @@
-Flask==2.3.3
-Werkzeug==2.3.7
-mediapipe==0.10.8
-opencv-python==4.8.1.78
-numpy==1.24.3
-Pillow==10.0.1
-urllib3==2.0.7
-click==8.1.7
-itsdangerous==2.1.2
-Jinja2==3.1.2
-MarkupSafe==2.1.3
-attrs==23.1.0
-flatbuffers==23.5.26
-absl-py==2.0.0
-protobuf==4.25.1
-sounddevice==0.4.6
+# Core Web Framework
+flask>=3.1.2
+werkzeug>=3.1.3
+jinja2>=3.1.6
+markupsafe>=3.0.3
+itsdangerous>=2.2.0
+click>=8.3.0
+blinker>=1.9.0
+
+# AI/ML and Computer Vision
+mediapipe>=0.10.21
+opencv-python-headless>=4.11.0
+numpy>=1.26.4
+matplotlib>=3.10.7
+
+# Image Processing
+pillow>=12.0.0
+
+# Utilities
+urllib3>=2.5.0
+
+# MediaPipe Dependencies (auto-installed but listed for reference)
+absl-py>=2.3.1
+attrs>=25.4.0
+flatbuffers>=25.9.23
+protobuf>=4.25.8

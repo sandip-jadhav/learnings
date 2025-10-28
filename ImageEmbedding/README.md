@@ -56,6 +56,7 @@ ImageEmbedding/
 
 ### Installation (Recommended - Using UV)
 
+#### macOS/Local Development
 1. **Install UV** (if not already installed):
    ```bash
    curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -71,10 +72,20 @@ ImageEmbedding/
    ./run_uv.sh
    ```
 
-4. **Open your browser** and navigate to:
+#### Linux/EC2/Server Deployment
+1. **Use the Linux-compatible script**:
+   ```bash
+   chmod +x run_linux.sh
+   ./run_linux.sh
    ```
-   http://localhost:5001
-   ```
+
+   *This script avoids build issues common on Linux and includes system dependency checks.*
+
+2. **For detailed Linux setup**, see [LINUX_SETUP.md](LINUX_SETUP.md)
+
+#### Access the Application
+- **Local**: http://localhost:5001
+- **Server/EC2**: http://YOUR_SERVER_IP:5001
 
 ### Alternative Installation (Traditional pip)
 
