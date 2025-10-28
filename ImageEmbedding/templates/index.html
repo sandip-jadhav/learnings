@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}MediaPipe Image Embedder - Compare Images{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto text-center">
+            <h1 class="display-4 fw-bold text-primary mb-3">
+                <i class="fas fa-search me-3"></i>
+                Image Similarity Detector
+            </h1>
+            <p class="lead text-muted mb-4">
+                Upload two images to compare their similarity using Google's MediaPipe image embedding technology. 
+                Get instant similarity scores based on advanced computer vision algorithms.
+            </p>
+        </div>
+    </div>
+
+    <!-- Upload Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-cloud-upload-alt me-2"></i>
+                        Upload Images for Comparison
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{{ url_for('upload_files') }}" method="post" enctype="multipart/form-data" id="uploadForm">
+                        <div class="row">
+                            <!-- First Image Upload -->
+                            <div class="col-md-6 mb-4">
+                                <div class="upload-area" id="uploadArea1">
+                                    <input type="file" id="image1" name="image1" accept="image/*" required class="file-input">
+                                    <div class="upload-content">
+                                        <i class="fas fa-image upload-icon"></i>
+                                        <h5>First Image</h5>
+                                        <p class="text-muted">Click to select or drag & drop</p>
+                                        <small class="text-muted">Supported: PNG, JPG, JPEG, GIF, BMP (Max 16MB)</small>
+                                    </div>
+                                    <div class="preview-container" id="preview1" style="display: none;">
+                                        <img class="preview-image" alt="Preview 1">
+                                        <div class="preview-overlay">
+                                            <button type="button" class="btn btn-sm btn-danger remove-image" data-target="1">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Second Image Upload -->
+                            <div class="col-md-6 mb-4">
+                                <div class="upload-area" id="uploadArea2">
+                                    <input type="file" id="image2" name="image2" accept="image/*" required class="file-input">
+                                    <div class="upload-content">
+                                        <i class="fas fa-image upload-icon"></i>
+                                        <h5>Second Image</h5>
+                                        <p class="text-muted">Click to select or drag & drop</p>
+                                        <small class="text-muted">Supported: PNG, JPG, JPEG, GIF, BMP (Max 16MB)</small>
+                                    </div>
+                                    <div class="preview-container" id="preview2" style="display: none;">
+                                        <img class="preview-image" alt="Preview 2">
+                                        <div class="preview-overlay">
+                                            <button type="button" class="btn btn-sm btn-danger remove-image" data-target="2">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg px-5" id="compareBtn" disabled>
+                                <i class="fas fa-search me-2"></i>
+                                Compare Images
+                            </button>
+                        </div>
+
+                        <!-- Loading Indicator -->
+                        <div class="text-center mt-3" id="loadingIndicator" style="display: none;">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2 text-muted">Processing images and calculating similarity...</p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <div class="row mt-5" id="about">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 bg-light">
+                <div class="card-body p-4">
+                    <h3 class="text-center mb-4">
+                        <i class="fas fa-info-circle text-primary me-2"></i>
+                        How It Works
+                    </h3>
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="feature-icon">
+                                <i class="fas fa-upload fa-3x text-primary mb-3"></i>
+                            </div>
+                            <h5>1. Upload Images</h5>
+                            <p class="text-muted">Select two images you want to compare</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="feature-icon">
+                                <i class="fas fa-brain fa-3x text-primary mb-3"></i>
+                            </div>
+                            <h5>2. AI Analysis</h5>
+                            <p class="text-muted">MediaPipe creates embeddings for both images</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="feature-icon">
+                                <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                            </div>
+                            <h5>3. Similarity Score</h5>
+                            <p class="text-muted">Get a similarity score from -1 to 1</p>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <h5 class="mb-3">Understanding Similarity Scores</h5>
+                        <div class="row">
+                            <div class="col-6 col-md-3">
+                                <div class="score-legend">
+                                    <div class="score-color very-similar"></div>
+                                    <small>0.9 - 1.0<br>Very Similar</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="score-legend">
+                                    <div class="score-color similar"></div>
+                                    <small>0.7 - 0.9<br>Similar</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="score-legend">
+                                    <div class="score-color somewhat"></div>
+                                    <small>0.5 - 0.7<br>Somewhat</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="score-legend">
+                                    <div class="score-color different"></div>
+                                    <small>< 0.5<br>Different</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('uploadForm');
+    const compareBtn = document.getElementById('compareBtn');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    
+    // Handle form submission
+    form.addEventListener('submit', function() {
+        compareBtn.disabled = true;
+        loadingIndicator.style.display = 'block';
+    });
+    
+    // Check if both images are selected
+    function checkFormCompletion() {
+        const image1 = document.getElementById('image1').files.length > 0;
+        const image2 = document.getElementById('image2').files.length > 0;
+        compareBtn.disabled = !(image1 && image2);
+    }
+    
+    // Add event listeners to file inputs
+    document.getElementById('image1').addEventListener('change', checkFormCompletion);
+    document.getElementById('image2').addEventListener('change', checkFormCompletion);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,624 @@
+/* MediaPipe Image Embedder - Custom Styles */
+
+/* Root Variables */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --info-color: #17a2b8;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    --gradient-warning: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --gradient-danger: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+    --shadow-light: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --shadow-medium: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --shadow-heavy: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+}
+
+/* Global Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+}
+
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.4rem;
+}
+
+/* Upload Area Styles */
+.upload-area {
+    border: 3px dashed #dee2e6;
+    border-radius: 15px;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    position: relative;
+    overflow: hidden;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-area:hover {
+    border-color: var(--primary-color);
+    background: rgba(0, 123, 255, 0.05);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.upload-area.dragover {
+    border-color: var(--success-color);
+    background: rgba(40, 167, 69, 0.1);
+    transform: scale(1.02);
+}
+
+.file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.upload-content {
+    z-index: 1;
+    pointer-events: none;
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.upload-area:hover .upload-icon {
+    transform: scale(1.1);
+    color: var(--success-color);
+}
+
+/* Preview Styles */
+.preview-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 15px;
+}
+
+.preview-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.preview-container:hover .preview-overlay {
+    opacity: 1;
+}
+
+.remove-image {
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Similarity Circle Styles */
+.similarity-circle {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: conic-gradient(
+        var(--primary-color) 0deg,
+        var(--primary-color) calc(var(--score, 0) * 360deg),
+        #e9ecef calc(var(--score, 0) * 360deg),
+        #e9ecef 360deg
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0 auto;
+    transition: all 0.5s ease;
+    box-shadow: var(--shadow-medium);
+}
+
+.similarity-circle::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    background: white;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.similarity-score {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.score-value {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    line-height: 1;
+}
+
+.score-percentage {
+    display: block;
+    font-size: 1rem;
+    color: var(--secondary-color);
+    margin-top: 0.5rem;
+}
+
+/* Similarity Circle Animations */
+.similarity-circle.very-similar {
+    background: conic-gradient(
+        var(--success-color) 0deg,
+        var(--success-color) calc(var(--score, 0) * 360deg),
+        #e9ecef calc(var(--score, 0) * 360deg),
+        #e9ecef 360deg
+    );
+}
+
+.similarity-circle.similar {
+    background: conic-gradient(
+        var(--info-color) 0deg,
+        var(--info-color) calc(var(--score, 0) * 360deg),
+        #e9ecef calc(var(--score, 0) * 360deg),
+        #e9ecef 360deg
+    );
+}
+
+.similarity-circle.somewhat-similar {
+    background: conic-gradient(
+        var(--warning-color) 0deg,
+        var(--warning-color) calc(var(--score, 0) * 360deg),
+        #e9ecef calc(var(--score, 0) * 360deg),
+        #e9ecef 360deg
+    );
+}
+
+.similarity-circle.different {
+    background: conic-gradient(
+        var(--danger-color) 0deg,
+        var(--danger-color) calc(var(--score, 0) * 360deg),
+        #e9ecef calc(var(--score, 0) * 360deg),
+        #e9ecef 360deg
+    );
+}
+
+.similarity-circle.animate {
+    transform: scale(1.05);
+}
+
+/* Image Comparison Styles */
+.image-comparison-container {
+    text-align: center;
+}
+
+.image-label {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: var(--light-color);
+    border-radius: 10px;
+}
+
+.comparison-image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 15px;
+    box-shadow: var(--shadow-medium);
+    margin-bottom: 1rem;
+}
+
+.comparison-image {
+    transition: transform 0.3s ease;
+    max-height: 400px;
+    width: 100%;
+    object-fit: contain;
+}
+
+.comparison-image:hover {
+    transform: scale(1.02);
+}
+
+/* VS Indicator Styles */
+.vs-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 200px;
+}
+
+.vs-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-medium);
+    animation: pulse 2s infinite;
+}
+
+.similarity-arrow {
+    margin-top: 1rem;
+    animation: bounce 2s infinite;
+}
+
+/* Score Legend Styles */
+.score-legend {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.score-color {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0 auto 0.5rem;
+    box-shadow: var(--shadow-light);
+}
+
+.score-color.very-similar {
+    background: var(--gradient-success);
+}
+
+.score-color.similar {
+    background: linear-gradient(135deg, var(--info-color), #20c997);
+}
+
+.score-color.somewhat {
+    background: linear-gradient(135deg, var(--warning-color), #fd7e14);
+}
+
+.score-color.different {
+    background: var(--gradient-danger);
+}
+
+/* Card Enhancements */
+.similarity-card {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.similarity-card .card-body {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--dark-color);
+    border-radius: 15px;
+    margin: 20px;
+}
+
+/* Technical Details */
+.technical-info {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    border-left: 4px solid var(--primary-color);
+}
+
+/* Animations */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+    }
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 20px rgba(0, 123, 255, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+    }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading Styles */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .upload-area {
+        padding: 2rem 1rem;
+        min-height: 250px;
+    }
+    
+    .upload-icon {
+        font-size: 2.5rem;
+    }
+    
+    .similarity-circle {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .score-value {
+        font-size: 2rem;
+    }
+    
+    .vs-circle {
+        width: 60px;
+        height: 60px;
+        font-size: 1.2rem;
+    }
+    
+    .comparison-image {
+        max-height: 300px;
+    }
+}
+
+@media (max-width: 576px) {
+    .vs-indicator {
+        margin: 2rem 0;
+        transform: rotate(90deg);
+    }
+    
+    .similarity-arrow {
+        margin-top: 0.5rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .navbar,
+    .btn,
+    footer {
+        display: none !important;
+    }
+    
+    .similarity-circle {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #dee2e6 !important;
+    }
+}
+
+/* Feature Icons */
+.feature-icon i {
+    transition: all 0.3s ease;
+}
+
+.feature-icon:hover i {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Enhanced Button Styles */
+.btn {
+    border-radius: 25px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: var(--gradient-primary);
+    filter: brightness(1.1);
+}
+
+/* Embedding Visualization Styles */
+.embedding-container {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-light);
+    border: 1px solid #e9ecef;
+}
+
+.embedding-stats .stat-box {
+    background: var(--light-color);
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 0.25rem;
+}
+
+.stat-number {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 0.25rem;
+}
+
+.embedding-visualization {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.embedding-visualization canvas {
+    width: 100%;
+    height: 200px;
+    border-radius: 5px;
+}
+
+.raw-embedding-container {
+    background: #2d3748;
+    border-radius: 8px;
+    padding: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.raw-embedding {
+    color: #e2e8f0;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.comparison-metric {
+    padding: 1rem;
+    background: white;
+    border-radius: 10px;
+    margin: 0.5rem;
+    box-shadow: var(--shadow-light);
+}
+
+.metric-value {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.progress {
+    height: 8px;
+    border-radius: 4px;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    border-radius: 4px;
+    transition: width 0.6s ease;
+}
+
+/* Embedding Chart Styles */
+.chart-container {
+    position: relative;
+    height: 200px;
+    margin: 1rem 0;
+}
+
+.embedding-chart {
+    width: 100%;
+    height: 100%;
+}
+
+/* Loading States */
+.embedding-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: var(--secondary-color);
+}
+
+.embedding-loading::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--primary-color);
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 0.5rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments for embeddings */
+@media (max-width: 768px) {
+    .embedding-container {
+        padding: 1rem;
+    }
+    
+    .embedding-stats .stat-box {
+        margin: 0.125rem;
+        padding: 0.75rem;
+    }
+    
+    .stat-number {
+        font-size: 1rem;
+    }
+    
+    .raw-embedding {
+        font-size: 0.65rem;
+    }
+}
+
+/* Utility Classes */
+.fade-in {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}

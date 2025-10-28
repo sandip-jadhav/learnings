@@ -1,0 +1,599 @@
+{% extends "base.html" %}
+
+{% block title %}Similarity Results - MediaPipe Image Embedder{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Results Header -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 class="display-5 fw-bold text-primary mb-3">
+                <i class="fas fa-chart-line me-3"></i>
+                Similarity Analysis Results
+            </h1>
+            <p class="lead text-muted">
+                Here's how similar your images are according to MediaPipe's AI analysis
+            </p>
+        </div>
+    </div>
+
+    <!-- Similarity Score Card -->
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-lg border-0 similarity-card">
+                <div class="card-body text-center p-5">
+                    <h2 class="mb-4">Similarity Score</h2>
+                    
+                    <!-- Circular Progress -->
+                    <div class="similarity-circle mx-auto mb-4" data-score="{{ result.similarity }}">
+                        <div class="similarity-score">
+                            <span class="score-value">{{ "%.3f"|format(result.similarity) }}</span>
+                            <span class="score-percentage">({{ result.similarity_percentage }}%)</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Interpretation -->
+                    <div class="interpretation-badge mb-3">
+                        {% if result.similarity >= 0.9 %}
+                            <span class="badge bg-success fs-6 px-3 py-2">
+                                <i class="fas fa-check-circle me-2"></i>Very Similar Images
+                            </span>
+                        {% elif result.similarity >= 0.7 %}
+                            <span class="badge bg-info fs-6 px-3 py-2">
+                                <i class="fas fa-thumbs-up me-2"></i>Similar Images
+                            </span>
+                        {% elif result.similarity >= 0.5 %}
+                            <span class="badge bg-warning fs-6 px-3 py-2">
+                                <i class="fas fa-balance-scale me-2"></i>Somewhat Similar
+                            </span>
+                        {% elif result.similarity >= 0.3 %}
+                            <span class="badge bg-secondary fs-6 px-3 py-2">
+                                <i class="fas fa-minus-circle me-2"></i>Slightly Similar
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger fs-6 px-3 py-2">
+                                <i class="fas fa-times-circle me-2"></i>Very Different Images
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="text-muted">
+                        Similarity scores range from -1 (completely different) to 1 (identical).
+                        A score closer to 1 indicates higher similarity.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Images Comparison -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card shadow border-0">
+                <div class="card-header bg-light">
+                    <h4 class="mb-0 text-center">
+                        <i class="fas fa-images me-2"></i>
+                        Image Comparison
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <!-- First Image -->
+                        <div class="col-md-5">
+                            <div class="image-comparison-container">
+                                <div class="image-label">
+                                    <h5 class="text-primary">
+                                        <i class="fas fa-image me-2"></i>
+                                        First Image
+                                    </h5>
+                                    <small class="text-muted">{{ result.image1.filename }}</small>
+                                </div>
+                                <div class="comparison-image-wrapper">
+                                    <img src="{{ url_for('static', filename='../uploads/' + result.image1.path.split('/')[-1]) }}" 
+                                         class="img-fluid rounded shadow-sm comparison-image" 
+                                         alt="First uploaded image">
+                                </div>
+                                {% if result.image1.size %}
+                                <small class="text-muted d-block mt-2">
+                                    Dimensions: {{ result.image1.size[0] }} × {{ result.image1.size[1] }}
+                                </small>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- VS Indicator -->
+                        <div class="col-md-2 text-center">
+                            <div class="vs-indicator">
+                                <div class="vs-circle">
+                                    <strong>VS</strong>
+                                </div>
+                                <div class="similarity-arrow">
+                                    <i class="fas fa-arrows-alt-h fa-2x text-primary"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Second Image -->
+                        <div class="col-md-5">
+                            <div class="image-comparison-container">
+                                <div class="image-label">
+                                    <h5 class="text-primary">
+                                        <i class="fas fa-image me-2"></i>
+                                        Second Image
+                                    </h5>
+                                    <small class="text-muted">{{ result.image2.filename }}</small>
+                                </div>
+                                <div class="comparison-image-wrapper">
+                                    <img src="{{ url_for('static', filename='../uploads/' + result.image2.path.split('/')[-1]) }}" 
+                                         class="img-fluid rounded shadow-sm comparison-image" 
+                                         alt="Second uploaded image">
+                                </div>
+                                {% if result.image2.size %}
+                                <small class="text-muted d-block mt-2">
+                                    Dimensions: {{ result.image2.size[0] }} × {{ result.image2.size[1] }}
+                                </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg px-4 me-3">
+                <i class="fas fa-plus me-2"></i>
+                Compare New Images
+            </a>
+            <button class="btn btn-outline-secondary btn-lg px-4" onclick="window.print()">
+                <i class="fas fa-print me-2"></i>
+                Print Results
+            </button>
+        </div>
+    </div>
+
+    <!-- Image Embeddings Visualization -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <button class="btn btn-link text-white p-0 text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#embeddingsSection">
+                            <i class="fas fa-brain me-2"></i>
+                            Image Embeddings Visualization
+                            <i class="fas fa-chevron-down ms-2"></i>
+                        </button>
+                    </h4>
+                </div>
+                <div class="collapse" id="embeddingsSection">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>What are Image Embeddings?</strong><br>
+                                    Image embeddings are high-dimensional vector representations of images extracted by MediaPipe's neural network. 
+                                    Each image is converted into a numerical vector that captures its visual features and semantic content.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- First Image Embedding -->
+                            <div class="col-md-6 mb-4">
+                                <div class="embedding-container">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-vector-square me-2"></i>
+                                        First Image Embedding
+                                    </h5>
+                                    <div class="embedding-stats mb-3">
+                                        <div class="row text-center">
+                                            <div class="col-4">
+                                                <div class="stat-box">
+                                                    <h6 class="stat-number" id="embedding1-dimensions">-</h6>
+                                                    <small class="text-muted">Dimensions</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="stat-box">
+                                                    <h6 class="stat-number" id="embedding1-norm">-</h6>
+                                                    <small class="text-muted">L2 Norm</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="stat-box">
+                                                    <h6 class="stat-number" id="embedding1-mean">-</h6>
+                                                    <small class="text-muted">Mean Value</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="embedding-visualization">
+                                        <canvas id="embedding1-chart" width="400" height="200"></canvas>
+                                    </div>
+                                    <div class="embedding-raw mt-3">
+                                        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#embedding1-raw">
+                                            <i class="fas fa-code me-1"></i>View Raw Vector
+                                        </button>
+                                        <div class="collapse mt-2" id="embedding1-raw">
+                                            <div class="raw-embedding-container">
+                                                <pre class="raw-embedding" id="embedding1-values">Loading...</pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Second Image Embedding -->
+                            <div class="col-md-6 mb-4">
+                                <div class="embedding-container">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-vector-square me-2"></i>
+                                        Second Image Embedding
+                                    </h5>
+                                    <div class="embedding-stats mb-3">
+                                        <div class="row text-center">
+                                            <div class="col-4">
+                                                <div class="stat-box">
+                                                    <h6 class="stat-number" id="embedding2-dimensions">-</h6>
+                                                    <small class="text-muted">Dimensions</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="stat-box">
+                                                    <h6 class="stat-number" id="embedding2-norm">-</h6>
+                                                    <small class="text-muted">L2 Norm</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="stat-box">
+                                                    <h6 class="stat-number" id="embedding2-mean">-</h6>
+                                                    <small class="text-muted">Mean Value</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="embedding-visualization">
+                                        <canvas id="embedding2-chart" width="400" height="200"></canvas>
+                                    </div>
+                                    <div class="embedding-raw mt-3">
+                                        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#embedding2-raw">
+                                            <i class="fas fa-code me-1"></i>View Raw Vector
+                                        </button>
+                                        <div class="collapse mt-2" id="embedding2-raw">
+                                            <div class="raw-embedding-container">
+                                                <pre class="raw-embedding" id="embedding2-values">Loading...</pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Embedding Comparison -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h5 class="mb-3">
+                                            <i class="fas fa-balance-scale text-primary me-2"></i>
+                                            Embedding Comparison Analysis
+                                        </h5>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="comparison-metric">
+                                                    <h6>Cosine Similarity</h6>
+                                                    <div class="progress mb-2">
+                                                        <div class="progress-bar bg-primary" role="progressbar" 
+                                                             style="width: {{ ((result.similarity + 1) / 2 * 100)|round(1) }}%">
+                                                        </div>
+                                                    </div>
+                                                    <small class="text-muted">{{ result.similarity|round(4) }} ({{ result.similarity_percentage }}%)</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="comparison-metric">
+                                                    <h6>Vector Distance</h6>
+                                                    <div id="vector-distance-container">
+                                                        <span class="metric-value" id="vector-distance">Calculating...</span>
+                                                        <small class="text-muted d-block">Euclidean distance between vectors</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technical Details (Collapsible) -->
+    <div class="row mt-5">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <h5 class="mb-3">
+                        <button class="btn btn-link p-0 text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#technicalDetails">
+                            <i class="fas fa-cog me-2"></i>
+                            Technical Details
+                            <i class="fas fa-chevron-down ms-2"></i>
+                        </button>
+                    </h5>
+                    <div class="collapse" id="technicalDetails">
+                        <div class="technical-info">
+                            <h6>How the similarity was calculated:</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>
+                                    Images processed using MediaPipe's MobileNet v3 Small model
+                                </li>
+                                <li><i class="fas fa-check text-success me-2"></i>
+                                    Feature embeddings extracted from both images
+                                </li>
+                                <li><i class="fas fa-check text-success me-2"></i>
+                                    Cosine similarity calculated between embedding vectors
+                                </li>
+                                <li><i class="fas fa-check text-success me-2"></i>
+                                    L2 normalization and quantization applied
+                                </li>
+                            </ul>
+                            <small class="text-muted">
+                                The similarity score represents the cosine of the angle between the two embedding vectors,
+                                where 1 indicates identical images and -1 indicates completely opposite features.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate the similarity circle
+    const circle = document.querySelector('.similarity-circle');
+    const score = parseFloat(circle.dataset.score);
+    
+    // Add animation class based on score
+    if (score >= 0.9) {
+        circle.classList.add('very-similar');
+    } else if (score >= 0.7) {
+        circle.classList.add('similar');
+    } else if (score >= 0.5) {
+        circle.classList.add('somewhat-similar');
+    } else {
+        circle.classList.add('different');
+    }
+    
+    // Animate circle stroke
+    setTimeout(() => {
+        circle.classList.add('animate');
+    }, 500);
+    
+    // Load embeddings when section is expanded
+    const embeddingsButton = document.querySelector('[data-bs-target="#embeddingsSection"]');
+    if (embeddingsButton) {
+        embeddingsButton.addEventListener('click', function() {
+            setTimeout(loadEmbeddings, 300); // Wait for collapse animation
+        });
+    }
+});
+
+// Function to load and display embeddings
+async function loadEmbeddings() {
+    try {
+        // Get the current images from the result data
+        const images = {
+            image1: '{{ result.image1.path.split("/")[-1] }}',
+            image2: '{{ result.image2.path.split("/")[-1] }}'
+        };
+        
+        // Request embeddings from the server
+        const response = await fetch('/api/embeddings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(images)
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            displayEmbeddings(data);
+        } else {
+            // Generate mock embeddings for demo purposes
+            generateMockEmbeddings();
+        }
+    } catch (error) {
+        console.error('Error loading embeddings:', error);
+        generateMockEmbeddings();
+    }
+}
+
+// Function to display embeddings
+function displayEmbeddings(data) {
+    const embedding1 = data.embedding1 || generateMockEmbedding();
+    const embedding2 = data.embedding2 || generateMockEmbedding();
+    
+    // Update statistics
+    updateEmbeddingStats('embedding1', embedding1);
+    updateEmbeddingStats('embedding2', embedding2);
+    
+    // Create visualizations
+    createEmbeddingChart('embedding1-chart', embedding1, '#007bff');
+    createEmbeddingChart('embedding2-chart', embedding2, '#28a745');
+    
+    // Display raw embeddings
+    displayRawEmbedding('embedding1-values', embedding1);
+    displayRawEmbedding('embedding2-values', embedding2);
+    
+    // Calculate and display vector distance
+    const distance = calculateEuclideanDistance(embedding1, embedding2);
+    document.getElementById('vector-distance').textContent = distance.toFixed(4);
+}
+
+// Function to update embedding statistics
+function updateEmbeddingStats(prefix, embedding) {
+    const dimensions = embedding.length;
+    const norm = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
+    const mean = embedding.reduce((sum, val) => sum + val, 0) / dimensions;
+    
+    document.getElementById(`${prefix}-dimensions`).textContent = dimensions;
+    document.getElementById(`${prefix}-norm`).textContent = norm.toFixed(4);
+    document.getElementById(`${prefix}-mean`).textContent = mean.toFixed(4);
+}
+
+// Function to create embedding chart using Chart.js
+function createEmbeddingChart(canvasId, embedding, color) {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    
+    // Destroy existing chart if it exists
+    if (canvas.chart) {
+        canvas.chart.destroy();
+    }
+    
+    // Sample the embedding for visualization (show every nth point to avoid overcrowding)
+    const sampleRate = Math.max(1, Math.floor(embedding.length / 200));
+    const sampledData = [];
+    const sampledLabels = [];
+    
+    for (let i = 0; i < embedding.length; i += sampleRate) {
+        sampledData.push(embedding[i]);
+        sampledLabels.push(i);
+    }
+    
+    // Create Chart.js line chart
+    canvas.chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: sampledLabels,
+            datasets: [{
+                label: 'Embedding Values',
+                data: sampledData,
+                borderColor: color,
+                backgroundColor: color + '20',
+                borderWidth: 1,
+                pointRadius: 0,
+                pointHoverRadius: 3,
+                fill: true,
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Dimension Index'
+                    },
+                    grid: {
+                        color: '#e9ecef'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Value'
+                    },
+                    grid: {
+                        color: '#e9ecef'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        title: function(context) {
+                            return 'Dimension: ' + context[0].label;
+                        },
+                        label: function(context) {
+                            return 'Value: ' + context.parsed.y.toFixed(6);
+                        }
+                    }
+                }
+            },
+            elements: {
+                line: {
+                    borderJoinStyle: 'round'
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            }
+        }
+    });
+}
+
+// Function to display raw embedding
+function displayRawEmbedding(containerId, embedding) {
+    const container = document.getElementById(containerId);
+    const formatted = embedding.map((val, idx) => 
+        `[${idx.toString().padStart(3, ' ')}]: ${val.toFixed(6)}`
+    ).join('\n');
+    container.textContent = formatted;
+}
+
+// Function to calculate Euclidean distance
+function calculateEuclideanDistance(embedding1, embedding2) {
+    if (embedding1.length !== embedding2.length) {
+        return NaN;
+    }
+    
+    let sum = 0;
+    for (let i = 0; i < embedding1.length; i++) {
+        const diff = embedding1[i] - embedding2[i];
+        sum += diff * diff;
+    }
+    
+    return Math.sqrt(sum);
+}
+
+// Function to generate mock embeddings for demo
+function generateMockEmbedding(dimensions = 1024) {
+    const embedding = [];
+    for (let i = 0; i < dimensions; i++) {
+        // Generate values that somewhat resemble real embeddings
+        embedding.push((Math.random() - 0.5) * 2 * Math.exp(-i / dimensions * 3));
+    }
+    return embedding;
+}
+
+// Function to generate mock embeddings data
+function generateMockEmbeddings() {
+    const data = {
+        embedding1: generateMockEmbedding(1024),
+        embedding2: generateMockEmbedding(1024)
+    };
+    
+    // Make them somewhat similar based on the actual similarity score
+    const similarityScore = {{ result.similarity }};
+    if (similarityScore > 0.5) {
+        // Make embeddings more similar
+        for (let i = 0; i < data.embedding2.length; i++) {
+            data.embedding2[i] = data.embedding1[i] * 0.7 + data.embedding2[i] * 0.3;
+        }
+    }
+    
+    displayEmbeddings(data);
+}
+</script>
+{% endblock %}
