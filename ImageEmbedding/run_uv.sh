@@ -21,7 +21,23 @@ fi
 
 # Install dependencies
 echo "📦 Installing dependencies with UV..."
-uv sync
+uv sync --no-dev
+
+# Verify key dependencies are installed
+echo "🔍 Verifying critical dependencies..."
+uv run python -c "
+import sys
+try:
+    import flask
+    import mediapipe
+    import cv2
+    import numpy
+    import matplotlib
+    print('✅ All critical dependencies verified')
+except ImportError as e:
+    print(f'❌ Missing dependency: {e}')
+    sys.exit(1)
+"
 
 # Create necessary directories
 echo "📁 Creating directories..."
