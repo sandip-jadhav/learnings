@@ -1,10 +1,11 @@
 # MediaPipe Image Embedder Web Application
 
-A modern, responsive web application for comparing image similarity using Google's MediaPipe Tasks Python API. This application provides an intuitive interface to upload two images and get their similarity score based on advanced computer vision embeddings.
+A modern, responsive web application for comparing image similarity using Google's MediaPipe Tasks Python API. This application provides an intuitive interface to upload two images, get their similarity score, and visualize the underlying embedding vectors used in the analysis.
 
 ![MediaPipe Image Embedder](https://img.shields.io/badge/MediaPipe-Image%20Embedder-blue)
-![Flask](https://img.shields.io/badge/Flask-2.3.3-green)
-![Python](https://img.shields.io/badge/Python-3.8+-blue)
+![Flask](https://img.shields.io/badge/Flask-3.1.2-green)
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![UV](https://img.shields.io/badge/UV-Package%20Manager-purple)
 ![License](https://img.shields.io/badge/License-Apache%202.0-yellow)
 
 ## 🌟 Features
@@ -24,18 +25,22 @@ A modern, responsive web application for comparing image similarity using Google
 
 ```
 ImageEmbedding/
-├── app.py                 # Main Flask application
-├── requirements.txt       # Python dependencies
-├── README.md             # This file
+├── app.py                 # Main Flask application with embedding API
+├── pyproject.toml         # UV project configuration
+├── requirements.txt       # Python dependencies (legacy)
+├── run_uv.sh             # UV-based launch script
+├── test_imports.py       # MediaPipe installation test
+├── README.md             # This comprehensive guide
+├── .venv/                # UV-managed virtual environment
 ├── static/               # Static assets
 │   ├── css/
-│   │   └── style.css     # Custom styles
+│   │   └── style.css     # Custom styles with embedding visualization
 │   └── js/
-│       └── main.js       # JavaScript functionality
+│       └── main.js       # JavaScript with Chart.js integration
 ├── templates/            # HTML templates
-│   ├── base.html         # Base template
+│   ├── base.html         # Base template with Chart.js
 │   ├── index.html        # Main upload page
-│   └── result.html       # Results display page
+│   └── result.html       # Results with embedding visualization
 ├── uploads/              # Uploaded images storage
 └── models/               # MediaPipe models (auto-downloaded)
     └── embedder.tflite   # MobileNet v3 Small model
@@ -45,43 +50,48 @@ ImageEmbedding/
 
 ### Prerequisites
 
-- Python 3.8 or higher
-- pip (Python package installer)
-- Virtual environment (recommended)
+- Python 3.9 or higher (Python 3.11 recommended)
+- UV (Ultra-fast Python package installer) - [Install UV](https://github.com/astral-sh/uv)
+- macOS, Linux, or Windows with WSL
 
-### Installation
+### Installation (Recommended - Using UV)
 
-1. **Clone or download the application**:
+1. **Install UV** (if not already installed):
    ```bash
-   # If you have the files, navigate to the directory
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+
+2. **Navigate to the project directory**:
+   ```bash
    cd ImageEmbedding
    ```
 
-2. **Create and activate a virtual environment**:
+3. **Run the application** (UV handles everything automatically):
    ```bash
-   # Create virtual environment
-   python -m venv venv
-   
-   # Activate on macOS/Linux
-   source venv/bin/activate
-   
-   # Activate on Windows
-   venv\Scripts\activate
+   ./run_uv.sh
    ```
 
-3. **Install dependencies**:
+4. **Open your browser** and navigate to:
+   ```
+   http://localhost:5001
+   ```
+
+### Alternative Installation (Traditional pip)
+
+1. **Create and activate a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+2. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Run the application**:
+3. **Run the application**:
    ```bash
    python app.py
-   ```
-
-5. **Open your browser** and navigate to:
-   ```
-   http://localhost:5000
    ```
 
 ## 📖 Usage Guide
@@ -104,10 +114,17 @@ ImageEmbedding/
    - **0.5 - 0.7**: Somewhat Similar
    - **< 0.5**: Different Images
 
+4. **Explore Embeddings** (NEW FEATURE):
+   - Click "Image Embeddings Visualization" to expand
+   - View interactive charts of embedding vectors
+   - Examine vector statistics (dimensions, L2 norm, mean)
+   - See raw embedding data and Euclidean distance
+
 ### API Usage
 
-The application also provides a REST API for programmatic access:
+The application provides comprehensive REST APIs for programmatic access:
 
+#### Similarity Analysis API
 ```python
 import requests
 
@@ -118,11 +135,29 @@ files = {
 }
 
 # Make request
-response = requests.post('http://localhost:5000/api/similarity', files=files)
+response = requests.post('http://localhost:5001/api/similarity', files=files)
 result = response.json()
 
 print(f"Similarity: {result['similarity']}")
 print(f"Interpretation: {result['interpretation']}")
+```
+
+#### Embeddings API (NEW)
+```python
+import requests
+
+# Get embeddings for uploaded images
+data = {
+    'image1': 'uploaded_image1.jpg',
+    'image2': 'uploaded_image2.jpg'
+}
+
+response = requests.post('http://localhost:5001/api/embeddings', json=data)
+result = response.json()
+
+print(f"Embedding dimensions: {result['dimensions']}")
+print(f"First embedding shape: {len(result['embedding1'])}")
+print(f"Second embedding shape: {len(result['embedding2'])}")
 ```
 
 ### JavaScript API
@@ -152,6 +187,23 @@ export FLASK_ENV=development
 export FLASK_DEBUG=True
 export SECRET_KEY=your-secret-key-here
 export MAX_FILE_SIZE=16777216  # 16MB in bytes
+export FLASK_RUN_PORT=5001     # Default port
+```
+
+### UV Configuration
+
+The application uses UV with the following configuration in `pyproject.toml`:
+
+```toml
+[project]
+name = "mediapipe-image-embedder"
+requires-python = ">=3.9"
+dependencies = [
+    "flask>=2.3.0",
+    "mediapipe>=0.10.8",
+    "opencv-python-headless>=4.8.0",
+    # ... other dependencies
+]
 ```
 
 ### Model Configuration
@@ -184,9 +236,13 @@ The application uses Google's MediaPipe Tasks with the following configuration:
 
 ### Performance Considerations
 
-- **Model Caching**: MediaPipe model loaded once and reused
+- **UV Package Management**: Ultra-fast dependency resolution and installation
+- **Model Caching**: MediaPipe model loaded once and reused across requests
+- **GPU Acceleration**: Automatic Metal GPU acceleration on Apple Silicon
+- **TensorFlow Lite**: XNNPACK delegate for optimized CPU inference
 - **Image Resizing**: Automatic resizing for display optimization
 - **Memory Management**: Temporary files cleaned up automatically
+- **Embedding Caching**: Vectors cached for visualization requests
 - **Error Handling**: Comprehensive error handling and user feedback
 
 ## 🛡️ Security Features
@@ -211,14 +267,16 @@ python app.py
 
 For production, use a WSGI server like Gunicorn:
 
-1. **Install Gunicorn**:
+1. **Using UV**:
    ```bash
-   pip install gunicorn
+   uv add gunicorn
+   uv run gunicorn -w 4 -b 0.0.0.0:5001 app:app
    ```
 
-2. **Run with Gunicorn**:
+2. **Traditional approach**:
    ```bash
-   gunicorn -w 4 -b 0.0.0.0:5000 app:app
+   pip install gunicorn
+   gunicorn -w 4 -b 0.0.0.0:5001 app:app
    ```
 
 3. **Use with Nginx** (recommended):
@@ -314,7 +372,7 @@ Handle image upload and similarity calculation.
 - `image1`: First image file (multipart/form-data)
 - `image2`: Second image file (multipart/form-data)
 
-**Response**: HTML page with results
+**Response**: HTML page with results including embedding visualization
 
 #### `POST /api/similarity`
 API endpoint for similarity calculation.
@@ -329,6 +387,27 @@ API endpoint for similarity calculation.
     "similarity": 0.8745,
     "similarity_percentage": 87.45,
     "interpretation": "Similar images"
+}
+```
+
+#### `POST /api/embeddings` (NEW)
+API endpoint for retrieving image embeddings.
+
+**Parameters**:
+```json
+{
+    "image1": "filename1.jpg",
+    "image2": "filename2.jpg"
+}
+```
+
+**Response**:
+```json
+{
+    "embedding1": [0.123, -0.456, 0.789, ...],
+    "embedding2": [0.234, -0.567, 0.890, ...],
+    "dimensions": 1024,
+    "success": true
 }
 ```
 
@@ -360,7 +439,20 @@ For support and questions:
 - Check the troubleshooting section
 - Review MediaPipe documentation: https://developers.google.com/mediapipe
 
-## 🔄 Version History
+## 🆕 Latest Features
+
+### Version 2.0.0 - Embedding Visualization Update
+
+- **🧠 Interactive Embedding Visualization**: View and analyze image embeddings with Chart.js
+- **� Vector Statistics**: Comprehensive embedding metrics (dimensions, L2 norm, mean values)
+- **🔍 Raw Data Access**: Complete embedding vectors with dimension indices
+- **📈 Advanced Analytics**: Euclidean distance calculations and vector comparisons
+- **⚡ UV Package Management**: Ultra-fast dependency management and installation
+- **🚀 Enhanced APIs**: New `/api/embeddings` endpoint for programmatic access
+- **🎨 Improved UI/UX**: Modern, responsive design with collapsible sections
+- **🔧 Better Performance**: GPU acceleration and optimized model loading
+
+### Previous Versions
 
 - **v1.0.0** - Initial release with basic functionality
 - **v1.1.0** - Added API endpoints and improved UI
